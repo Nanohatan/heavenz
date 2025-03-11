@@ -1,0 +1,20 @@
+{{ define "main" }}
+
+<section class="hero bg-cover bg-center" style="background-image: url('/img/hero.jpg');">
+  <div class="container mx-auto px-4 py-32 text-center">
+    <h2 class="text-4xl font-bold text-white">あなたのビジネスを次のレベルへ</h2>
+    <p class="mt-4 text-lg text-white">最高のサービスを提供します。今すぐご相談ください！</p>
+    <a href="#" class="mt-8 inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg">お問い合わせ</a>
+  </div>
+</section>
+  {{ .Content }}
+
+
+
+  {{ range site.RegularPages }}
+    <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
+  {{ end }}
+
+
+
+{{ end }}
