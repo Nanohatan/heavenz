@@ -1,24 +1,21 @@
 {{ define "main" }}
 <section id="character-list">
     <div class="container">
-        <h2>登場キャラクター</h2>
+        <h2>{{.Params.subtitle1}}</h2>
         <div class="character-grid">
-            <div class="character-card">
-                <a href="character_taro">
-                    <img src="images/chara_taro.png" alt="山田太郎">
-                    <h3>山田 太郎</h3>
-                    <p>熱血漢の主人公パイロット</p>
+            {{ with .Params.characters }}
+            {{ range . }}
+              <div class="character-card">
+                <a href="{{ .link | relURL }}">
+                  <img src="{{ .image | relURL }}" alt="{{ .alt }}">
+                  <h3>{{ .name }}</h3>
+                  <p>{{ .description }}</p>
                 </a>
-            </div>
-            <div class="character-card">
-                <a href="#"> <!-- 他のキャラクターページへのリンク -->
-                    <img src="images/placeholder_chara.png" alt="キャラクター名２"> <!-- images/placeholder_chara.png のような仮画像 -->
-                    <h3>鈴木 花子</h3>
-                    <p>冷静沈着なオペレーター</p>
-                </a>
-            </div>
-            <!-- 他のキャラクターカードをここに追加 -->
+              </div>
+            {{ end }}
+            {{ end }}
         </div>
+
     </div>
 </section>
 

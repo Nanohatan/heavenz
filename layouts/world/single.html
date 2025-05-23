@@ -1,0 +1,241 @@
+{{define "main"}}
+<style>
+.faction-network-container {
+    width: 100%;
+    /* 高さは内容に応じて、または固定値を指定 */
+    /* 例: aspect-ratio: 16 / 9; もしくは height: 600px; */
+    /* 今回はノードの配置に依存するため、heightを大きめに取っておくか、
+       JavaScriptで動的に調整するのが理想だが、CSSのみなら試行錯誤が必要 */
+    min-height: 700px; /* 最低限の高さを確保 */
+    position: relative;
+    background-color: rgba(10, 20, 40, 0.5); /* 背景を少し暗くしてノードを目立たせる */
+    border: 1px solid var(--color-secondary);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin: 20px auto;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
+    overflow: visible; /* コンテナからはみ出さないように */
+}
+
+.faction-node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--color-surface);
+    border: 2px solid var(--color-text-muted);
+    border-radius: var(--border-radius);
+    box-shadow: var(--hard-shadow);
+    transform: translate(-50%, -50%);
+    width: 150px;
+    text-align: center;
+    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease, border-color var(--transition-speed) ease, z-index 0s var(--transition-speed); /* z-indexのtransition調整 */
+    z-index: 10; /* 通常時のz-index */
+}
+
+.faction-node:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 0 15px var(--color-accent), var(--hard-shadow);
+    z-index: 100; /* ホバー時に他の通常ノードや線よりもかなり手前に */
+    transition-delay: 0s; /* ホバー解除時にz-indexがすぐに戻るように */
+}
+
+.faction-node .faction-icon {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
+    font-family: var(--font-family-heading);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-bg);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.faction-node .faction-name {
+    font-family: var(--font-family-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin-bottom: 4px;
+}
+.faction-node .faction-name .faction-type {
+    display: block;
+    font-size: 0.75rem;
+    font-family: var(--font-family-base);
+    color: var(--color-text-muted);
+    font-weight: 400;
+    text-transform: none; /* type は大文字化しない */
+}
+
+
+/* 勢力ごとの色分け */
+.faction-protagonist .faction-icon { background-color: var(--color-secondary); }
+.faction-protagonist { border-color: var(--color-secondary); }
+.faction-protagonist:hover { border-color: var(--color-accent); box-shadow: 0 0 15px var(--color-secondary), var(--hard-shadow); }
+
+.faction-rival .faction-icon { background-color: #F48B29; } /* オレンジ系 */
+.faction-rival { border-color: #F48B29; }
+.faction-rival:hover { border-color: var(--color-accent); box-shadow: 0 0 15px #F48B29, var(--hard-shadow); }
+
+.faction-antagonist .faction-icon { background-color: var(--color-primary); } /* ベースの赤系 */
+.faction-antagonist { border-color: var(--color-primary); }
+.faction-antagonist:hover { border-color: var(--color-accent); box-shadow: 0 0 15px var(--color-primary), var(--hard-shadow); }
+
+.faction-neutral .faction-icon { background-color: #7E8A97; } /* グレー系 */
+.faction-neutral { border-color: #7E8A97; }
+.faction-neutral:hover { border-color: var(--color-accent); box-shadow: 0 0 15px #7E8A97, var(--hard-shadow); }
+
+.faction-underground .faction-icon { background-color: #5C4B51; } /* 紫系 */
+.faction-underground { border-color: #5C4B51; }
+.faction-underground:hover { border-color: var(--color-accent); box-shadow: 0 0 15px #5C4B51, var(--hard-shadow); }
+
+
+/* ツールチップ */
+.faction-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: calc(100% + 10px); /* ノードの上部に表示 */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px; /* ツールチップの幅 */
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+    border: 1px solid var(--color-secondary);
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    z-index: 30;
+    transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    text-align: left;
+}
+.faction-tooltip strong {
+    color: var(--color-accent);
+    font-family: var(--font-family-heading);
+}
+.faction-node:hover .faction-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+/* ツールチップの吹き出しの矢印 (CSSで簡易的に) */
+.faction-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: var(--color-secondary) transparent transparent transparent;
+}
+
+/* 関係性の線 (SVG) */
+.faction-relations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5; /* ノードより奥 */
+    pointer-events: none; /* 線がクリックイベントを奪わないように */
+}
+
+.faction-relations line {
+    stroke-width: 3px; /* 線の太さ */
+    stroke-linecap: round;
+    transition: stroke var(--transition-speed) ease, filter var(--transition-speed) ease;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5)); /* 線に影 */
+}
+
+/* 関係性の種類ごとのスタイル */
+.relation-hostile { stroke: var(--color-primary); } /* 敵対: 赤 */
+.relation-rival { stroke: #F48B29; stroke-dasharray: 8, 4; } /* 競合: オレンジ破線 */
+.relation-coop { stroke: var(--color-secondary); } /* 協力: シアン */
+.relation-secret { stroke: #8A2BE2AA; stroke-dasharray: 3, 3; } /* 裏取引/秘密: 紫の点線 (半透明) */
+.relation-info { stroke: var(--color-accent); stroke-dasharray: 10, 5, 2, 5; } /* 情報提供: 黄色の一点鎖線 */
+.relation-tense { stroke: #A9A9A9; } /* 緊張/監視: ダークグレイ */
+
+/* ホバー時のインタラクション（例：関連するノードと線を強調）
+   これはJavaScriptと組み合わせるのが理想ですが、CSSだけでも簡易的に。
+   例えば、.faction-network-container:hover 時に特定の線を太くするなど。
+   ここでは、特定のノードにホバーしたときに、そのノード自身とツールチップが強調されるようにしています。
+*/
+.faction-node:hover ~ .faction-relations .relation-connected-to-hovered { /* JavaScriptでクラスを付与する想定 */
+    /* stroke-width: 5px; */
+    /* filter: drop-shadow(0 0 5px var(--color-accent)); */
+}
+</style>
+<article class="world-section" id="faction-map-section">
+    <h2>勢力図ネットワーク</h2>
+    <div class="faction-network-container">
+        <div class="faction-node faction-protagonist" id="faction-alpha" style="top: 20%; left: 15%;">
+            <div class="faction-icon">α</div>
+            <div class="faction-name">アルファ部隊<span class="faction-type">(主人公側)</span></div>
+            <div class="faction-tooltip">
+                <strong>アルファ部隊 (Alpha Squad)</strong><br>
+                主人公たちが所属する特殊部隊。最新鋭Aギアを運用し、都市の平和を守るために戦う。少数精鋭。
+            </div>
+        </div>
+
+        <div class="faction-node faction-rival" id="faction-beta" style="top: 25%; left: 60%;">
+            <div class="faction-icon">β</div>
+            <div class="faction-name">ベータ社<span class="faction-type">(ライバル企業)</span></div>
+            <div class="faction-tooltip">
+                <strong>ベータ・インダストリーズ (Beta Industries)</strong><br>
+                軍事技術で急成長した巨大企業。高性能Aギアを開発・販売。アルファ部隊とは技術的に競合し、時に敵対する。
+            </div>
+        </div>
+
+        <div class="faction-node faction-antagonist" id="faction-gamma" style="top: 65%; left: 40%;">
+            <div class="faction-icon">γ</div>
+            <div class="faction-name">ガンマ組織<span class="faction-type">(敵対勢力)</span></div>
+            <div class="faction-tooltip">
+                <strong>ガンマ (Gamma Organization)</strong><br>
+                謎に包まれた過激派組織。旧世代のAギアを違法改造し、破壊活動を行う。その目的は不明。
+            </div>
+        </div>
+
+        <div class="faction-node faction-neutral" id="faction-delta" style="top: 50%; left: 80%;">
+            <div class="faction-icon">δ</div>
+            <div class="faction-name">デルタ情報局<span class="faction-type">(中立組織)</span></div>
+            <div class="faction-tooltip">
+                <strong>デルタ情報局 (Delta Intelligence Agency)</strong><br>
+                政府直属の情報機関。各勢力の動向を監視しているが、表立って介入することは少ない。独自のAギアを保有。
+            </div>
+        </div>
+
+        <div class="faction-node faction-underground" id="faction-epsilon" style="top: 80%; left: 10%;">
+            <div class="faction-icon">ε</div>
+            <div class="faction-name">イプシロン<span class="faction-type">(闇市場)</span></div>
+            <div class="faction-tooltip">
+                <strong>イプシロン・コネクション (Epsilon Connection)</strong><br>
+                違法パーツや情報を扱う闇市場ネットワーク。ガンマ組織とも繋がりがあるとされる。
+            </div>
+        </div>
+
+        <!-- 関係性を示す線 (SVGで描画) -->
+        <svg class="faction-relations" width="100%" height="100%">
+            <!-- アルファ - ベータ (競合/敵対) -->
+            <line class="relation-rival" x1="20%" y1="22%" x2="58%" y2="27%"/>
+            <!-- アルファ - ガンマ (明確な敵対) -->
+            <line class="relation-hostile" x1="18%" y1="25%" x2="40%" y2="63%"/>
+            <!-- ベータ - ガンマ (裏取引？) -->
+            <line class="relation-secret" x1="60%" y1="30%" x2="43%" y2="63%"/>
+            <!-- ガンマ - イプシロン (協力) -->
+            <line class="relation-coop" x1="40%" y1="70%" x2="15%" y2="80%"/>
+            
+            <!-- アルファ - デルタ (情報提供) -->
+            <line class="relation-info" x1="19%" y1="23%" x2="78%" y2="50%"/>
+            <!-- ベータ - デルタ (監視/牽制) -->
+            <line class="relation-tense" x1="62%" y1="28%" x2="78%" y2="48%"/>
+        </svg>
+    </div>
+</article>
+{{end}}

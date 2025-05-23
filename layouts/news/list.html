@@ -1,0 +1,259 @@
+{{define "main"}}
+<style>
+/* === お知らせページ (News Page) スタイル === */
+
+#news-page h2 { /* お知らせページのメインタイトル */
+    text-align: center;
+    margin-bottom: 1em; /* 通常のh2より少しマージンを調整 */
+    padding-bottom: 0.5em;
+    border-bottom: 3px solid var(--color-primary);
+    display: block; /* display:inline-block だと中央揃えが効きにくい場合があるため */
+}
+#news-page h2 .section-subtitle {
+    display: block;
+    font-size: 0.6em; /* メインタイトルに対して小さく */
+    color: var(--color-text-muted);
+    font-family: var(--font-family-base); /* サブタイトルはベースフォントで */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.3em;
+}
+
+.news-list {
+    margin-top: 40px;
+}
+
+.news-item {
+    background-color: var(--color-bg-secondary); /* カード背景より少し明るい色 */
+    padding: 25px 30px;
+    margin-bottom: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--hard-shadow);
+    border-left: 5px solid var(--color-secondary); /* 左端にアクセントライン */
+    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+.news-item:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 8px 8px 0px #00000050, 0 0 10px var(--color-secondary);
+}
+
+.news-item-header {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed rgba(255,255,255,0.1);
+    display: flex; /* 日付、タイトル、カテゴリを横並びにする準備 */
+    flex-wrap: wrap; /* スマホで折り返す */
+    align-items: baseline; /* テキストのベースラインを揃える */
+    gap: 10px 20px; /* 縦横の隙間 */
+}
+
+.news-date {
+    font-family: var(--font-family-heading);
+    font-size: 1rem;
+    color: var(--color-accent);
+    font-weight: 700;
+    flex-shrink: 0; /* 縮まないように */
+}
+
+.news-title {
+    font-size: 1.5rem; /* h3のデフォルトより少し大きめでも良い */
+    margin-top: 0;
+    margin-bottom: 0; /* header内でマージン調整 */
+    flex-grow: 1; /* タイトルが残りのスペースを埋める */
+}
+.news-title a {
+    color: var(--color-heading);
+    text-decoration: none;
+}
+.news-title a:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.news-category {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--color-bg);
+    background-color: var(--color-text-muted); /* デフォルトカテゴリ色 */
+    padding: 4px 10px;
+    border-radius: calc(var(--border-radius) / 2);
+    text-transform: uppercase;
+    white-space: nowrap; /* カテゴリ名が改行しないように */
+    flex-shrink: 0;
+}
+
+/* カテゴリごとの色分け例 */
+.news-category.cat-character { background-color: var(--color-secondary); color: var(--color-bg-secondary); }
+.news-category.cat-site { background-color: var(--color-accent); color: var(--color-bg); }
+.news-category.cat-story { background-color: var(--color-primary); color: #fff; }
+.news-category.cat-event { background-color: #4caf50; color: #fff; } /* 緑系など */
+.news-category.cat-other { background-color: #757575; color: #fff; } /* グレー系など */
+
+
+.news-excerpt p {
+    margin-bottom: 1.5em;
+    color: var(--color-text); /* 通常のpより少し明るく */
+}
+
+.btn-readmore { /* 「続きを読む」ボタンのスタイル */
+    display: inline-block;
+    padding: 0.6em 1.2em;
+    background: var(--color-primary);
+    color: #fff;
+    font-family: var(--font-family-heading);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: var(--border-radius);
+    box-shadow: var(--hard-shadow);
+    transition: transform var(--transition-speed) ease, background-color var(--transition-speed) ease;
+    text-decoration: none;
+}
+.btn-readmore:hover {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+/* === ページネーション スタイル === */
+.pagination {
+    margin-top: 40px;
+    text-align: center;
+}
+.pagination ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: inline-flex; /* 中央揃えにしやすくするため */
+    gap: 5px; /* 各ページ番号間のスペース */
+}
+.pagination li {
+    margin: 0; /* li自体のマージンは不要に */
+}
+.pagination .page-numbers {
+    display: inline-block;
+    padding: 8px 15px;
+    min-width: 40px; /* 最小幅を確保して見た目を揃える */
+    text-align: center;
+    border: 1px solid var(--color-surface); /* 通常の枠線 */
+    background-color: var(--color-surface);
+    color: var(--color-text-muted);
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-family: var(--font-family-heading);
+    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+}
+.pagination .page-numbers:hover,
+.pagination .page-numbers:focus {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-bg);
+    text-decoration: none;
+}
+.pagination .page-numbers.current {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    cursor: default;
+}
+.pagination .page-numbers.dots {
+    background-color: transparent;
+    border-color: transparent;
+    cursor: default;
+    padding: 8px 5px; /* ... は少しパディングを狭く */
+}
+.pagination .next, .pagination .prev { /* 「次へ」「前へ」のスタイル調整 (もしあれば) */
+    /* font-weight: bold; */
+}
+
+
+/* レスポンシブ調整 (News Page) */
+@media (max-width: 768px) {
+    #news-page h2 {
+        font-size: 2rem; /* スマホでは少し小さく */
+    }
+    #news-page h2 .section-subtitle {
+        font-size: 0.5em;
+    }
+
+    .news-item-header {
+        flex-direction: column; /* スマホでは縦並び */
+        align-items: flex-start; /* 左揃えに */
+        gap: 8px;
+    }
+    .news-title {
+        font-size: 1.3rem;
+        order: -1; /* タイトルを一番上に持ってくる */
+    }
+    .news-date {
+        font-size: 0.9rem;
+    }
+    .news-category {
+        font-size: 0.75rem;
+        margin-top: 5px;
+    }
+
+    .pagination .page-numbers {
+        padding: 6px 10px;
+        min-width: 32px;
+        font-size: 0.9rem;
+    }
+}
+
+</style>
+<section id="news-page">
+  <div class="container">
+    <h2>お知らせ <span class="section-subtitle">News &amp; Updates</span></h2>
+
+    {{ $pages := where .Site.RegularPages "Section" "news/post" | sort .Pages "Date" "desc" }}
+    {{ $paginator := .Paginate $pages 5 }}
+
+    <div class="news-list">
+      {{ range $paginator.Pages }}
+        <article class="news-item">
+          <header class="news-item-header">
+            <time datetime="{{ .Date.Format "2006-01-02" }}" class="news-date">
+              {{ .Date.Format "2006.01.02" }}
+            </time>
+            <h3 class="news-title">
+              <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </h3>
+            {{ with index .Params.categories 0 }}
+              <span class="news-category cat-{{ . }}">{{ . | humanize }}</span>
+            {{ end }}
+          </header>
+          <div class="news-excerpt">
+            <p>{{ .Summary }}</p>
+            <a href="{{ .RelPermalink }}" class="btn-readmore">続きを読む »</a>
+          </div>
+        </article>
+      {{ end }}
+    </div>
+
+    {{/* ページネーション */}}
+    <nav class="pagination" aria-label="お知らせページナビゲーション">
+      <ul>
+        {{ if $paginator.HasPrev }}
+          <li><a class="page-numbers prev" href="{{ $paginator.Prev.URL }}">« 前へ</a></li>
+        {{ end }}
+        {{ range $paginator.Pagers }}
+          <li>
+            {{ if eq . $paginator }}
+              <span class="page-numbers current">{{ .PageNumber }}</span>
+            {{ else }}
+              <a class="page-numbers" href="{{ .URL }}">{{ .PageNumber }}</a>
+            {{ end }}
+          </li>
+        {{ end }}
+        {{ if $paginator.HasNext }}
+          <li><a class="page-numbers next" href="{{ $paginator.Next.URL }}">次へ »</a></li>
+        {{ end }}
+      </ul>
+    </nav>
+  </div>
+</section>
+
+
+
+{{end}}
