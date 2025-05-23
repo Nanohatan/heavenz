@@ -1,0 +1,360 @@
+{{define "main"}}
+<style>
+
+/* === 物語ページ (Story Page) スタイル === */
+
+#story-page h2 { /* 物語ページのメインタイトル */
+    text-align: center;
+    margin-bottom: 1em;
+    padding-bottom: 0.5em;
+    border-bottom: 3px solid var(--color-secondary); /* お知らせページはprimaryだったので色を変えてみる */
+}
+#story-page h2 .section-subtitle {
+    display: block;
+    font-size: 0.6em;
+    color: var(--color-text-muted);
+    font-family: var(--font-family-base);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.3em;
+}
+
+.story-introduction,
+.story-chapters,
+.story-timeline {
+    margin-top: 50px;
+    padding: 25px;
+    background-color: rgba(var(--color-surface-rgb, 31, 64, 104), 0.7); /* 少し透明度を持たせるなど */
+    border-radius: var(--border-radius);
+    box-shadow: var(--hard-shadow);
+}
+/* :root に --color-surface-rgb: 31, 64, 104; のような変数を追加しておくと良い */
+:root {
+    /* ...既存の変数... */
+    --color-surface-rgb: 31, 64, 104; /* .story-introduction などで使用 */
+}
+
+
+.story-introduction h3,
+.story-chapters h3,
+.story-timeline h3 {
+    font-size: 1.8rem;
+    color: var(--color-accent);
+    margin-bottom: 1em;
+    text-align: center;
+    padding-bottom: 0.5em;
+    border-bottom: 1px dashed var(--color-accent);
+}
+.story-chapters h3 .chapters-subtitle {
+    display: block;
+    font-size: 0.7em;
+    color: var(--color-text-muted);
+    font-family: var(--font-family-base);
+    text-transform: none;
+}
+
+.story-introduction .lead-paragraph {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--color-text);
+    margin-bottom: 1.5em;
+}
+.story-introduction .story-intro-image {
+    margin: 20px auto;
+    max-width: 700px;
+    text-align: center;
+}
+.story-introduction .story-intro-image img {
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    border: 3px solid var(--color-secondary);
+}
+.story-introduction .story-intro-image figcaption {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-top: 0.5em;
+}
+
+.chapter-list {
+    display: grid;
+    gap: 30px; /* 各章の間のスペース */
+}
+
+.chapter-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* 番号 | 詳細 | 画像 (PC時) */
+    /* grid-template-areas: "number details image"; */ /* エリア名での指定も可 */
+    gap: 20px;
+    align-items: start; /* 上揃え */
+    padding: 20px;
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--color-primary); /* アクセント */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.chapter-number {
+    font-family: var(--font-family-heading);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    writing-mode: vertical-rl; /* 縦書き */
+    text-orientation: upright;
+    padding: 10px 5px;
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    align-self: stretch; /* 高さを親に合わせる */
+    text-align: center;
+    line-height: 1.2; /* 縦書き時の行間調整 */
+}
+
+.chapter-details {
+    /* grid-area: details; */
+}
+
+.chapter-title { /* h4 */
+    font-size: 1.4rem;
+    color: var(--color-heading);
+    margin-top: 0;
+    margin-bottom: 0.5em;
+}
+.chapter-status {
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-left: 10px;
+    vertical-align: middle;
+    color: #fff;
+}
+.chapter-status.status-released { background-color: var(--color-secondary); }
+.chapter-status.status-upcoming { background-color: var(--color-accent); color: var(--color-bg); }
+.chapter-status.status-planning { background-color: #757575; }
+
+
+.chapter-summary {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1em;
+    line-height: 1.6;
+}
+
+.btn-chapter-link {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background-color: var(--color-secondary);
+    color: var(--color-bg);
+    font-family: var(--font-family-heading);
+    font-size: 0.85rem;
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: background-color var(--transition-speed) ease, transform var(--transition-speed) ease;
+}
+.btn-chapter-link:hover {
+    background-color: var(--color-primary);
+    color: #fff;
+    transform: translateY(-2px);
+}
+.btn-chapter-link.disabled {
+    background-color: var(--color-text-muted);
+    color: var(--color-surface);
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+
+.chapter-image {
+    /* grid-area: image; */
+    max-width: 200px; /* サムネイル画像の最大幅 */
+    align-self: center; /* 中央揃え */
+}
+.chapter-image img {
+    border-radius: var(--border-radius);
+    border: 2px solid var(--color-surface);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+
+.story-timeline ul {
+    list-style: none;
+    padding-left: 0;
+    position: relative; /* 縦線のため */
+}
+/* タイムラインの縦線 (オプション) */
+.story-timeline ul::before {
+    content: '';
+    position: absolute;
+    left: 10px; /* または マーカー位置に合わせる */
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--color-secondary);
+    border-radius: 3px;
+    opacity: 0.5;
+}
+
+.story-timeline li {
+    padding-left: 30px; /* 縦線とマーカーのスペース */
+    margin-bottom: 1em;
+    position: relative; /* マーカーのため */
+}
+.story-timeline li::before { /* マーカー (円) */
+    content: '';
+    position: absolute;
+    left: 3px; /* 縦線からのオフセット */
+    top: 0.4em; /* 文字の高さに合わせる */
+    width: 15px;
+    height: 15px;
+    background-color: var(--color-accent);
+    border-radius: 50%;
+    border: 2px solid var(--color-bg-secondary);
+    box-shadow: 0 0 5px var(--color-accent);
+}
+.story-timeline li strong {
+    color: var(--color-heading);
+    display: block; /* 日付/イベント名を改行させる */
+    margin-bottom: 0.2em;
+}
+
+
+/* レスポンシブ調整 (Story Page) */
+@media (max-width: 992px) { /* タブレットなど */
+    .chapter-item {
+        grid-template-columns: auto 1fr; /* 番号 | 詳細 (画像は詳細の下へ) */
+        /* grid-template-areas: "number details"
+                             ". image";  ドットで空エリア指定 */
+    }
+    .chapter-image {
+        grid-column: 2 / 3; /* 詳細と同じ列に */
+        margin-top: 15px;
+        max-width: 100%; /* 幅を広げる */
+        text-align: center;
+    }
+    .chapter-image img {
+        max-width: 300px; /* スマホでは大きすぎないように */
+    }
+}
+
+@media (max-width: 768px) { /* スマートフォン */
+    .story-introduction h3,
+    .story-chapters h3,
+    .story-timeline h3 {
+        font-size: 1.6rem;
+    }
+
+    .chapter-item {
+        grid-template-columns: 1fr; /* 全て縦積み */
+        gap: 15px;
+    }
+    .chapter-number {
+        writing-mode: horizontal-tb; /* スマホでは横書きに戻す */
+        text-orientation: mixed;
+        padding: 8px 15px;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        align-self: auto;
+        font-size: 1.3rem;
+    }
+    .chapter-image {
+        grid-column: auto; /* グリッド設定解除 */
+        margin-top: 10px;
+    }
+    .chapter-title {
+        font-size: 1.2rem;
+    }
+    .chapter-summary {
+        font-size: 0.9rem;
+    }
+
+    .story-timeline ul::before { left: 7px; } /* マーカー位置に合わせて調整 */
+    .story-timeline li { padding-left: 25px; }
+    .story-timeline li::before { left: 0; top: 0.3em; width: 12px; height: 12px; }
+}
+</style>
+
+<section id="story-page">
+    <div class="container">
+        <h2>物語 <span class="section-subtitle">Story & Chapters</span></h2>
+
+        <div class="story-introduction">
+            <h3>プロローグ：鋼鉄の胎動</h3>
+            <p class="lead-paragraph">
+                西暦2042年、東京。人型汎用機械「アーティファクト・ギア」(Aギア)が社会に浸透し、新たな時代の幕開けを告げていた。
+                しかし、その光の影では、Aギアを悪用した犯罪やテロリズムが静かに牙を研いでいた。
+                これは、運命に導かれ、巨大な陰謀に立ち向かう若者たちの戦いの記録である。
+            </p>
+            <figure class="story-intro-image">
+                <img src="images/story/prologue_image.jpg" alt="物語の導入を象徴するイメージ">
+                <figcaption>Aギアが日常に溶け込む都市の風景</figcaption>
+            </figure>
+        </div>
+
+        <div class="story-chapters">
+            <h3>章立て <span class="chapters-subtitle">Episodes Guide</span></h3>
+
+            <div class="chapter-list">
+                <article class="chapter-item">
+                    <div class="chapter-number">第一章</div>
+                    <div class="chapter-details">
+                        <h4 class="chapter-title">鋼鉄の覚醒 <span class="chapter-status status-released">(公開中)</span></h4>
+                        <p class="chapter-summary">
+                            平凡な高校生、山田太郎は、突如として謎の組織「ガンマ」の襲撃に巻き込まれる。
+                            絶体絶命の危機に瀕した彼が偶然乗り込んだのは、最新鋭Aギア「ライトブレイバー」。
+                            戸惑いながらも、彼は初めての戦いに身を投じる。
+                        </p>
+                        <a href="news_detail_001.html" class="btn-chapter-link">第一話を読む »</a>
+                        <!-- もし章ごとの専用ページがあればそちらへリンク -->
+                    </div>
+                    <figure class="chapter-image">
+                        <img src="images/story/chapter_01_thumbnail.jpg" alt="第一章のサムネイルイメージ">
+                    </figure>
+                </article>
+
+                <article class="chapter-item">
+                    <div class="chapter-number">第二章</div>
+                    <div class="chapter-details">
+                        <h4 class="chapter-title">蒼き翼の少女 <span class="chapter-status status-upcoming">(近日公開予定)</span></h4>
+                        <p class="chapter-summary">
+                            ライトブレイバーの正式パイロットとなった太郎。彼の前に現れたのは、
+                            同じくAギアを駆る謎の美少女、鈴木花子だった。彼女の目的、そして所属する組織とは？
+                            新たな出会いが、太郎を更なる戦いへと導く。
+                        </p>
+                        <!-- <a href="#" class="btn-chapter-link disabled">詳細情報 (準備中)</a> -->
+                    </div>
+                    <figure class="chapter-image">
+                        <img src="images/story/chapter_02_thumbnail.jpg" alt="第二章のサムネイルイメージ">
+                    </figure>
+                </article>
+
+                <article class="chapter-item">
+                    <div class="chapter-number">第三章</div>
+                    <div class="chapter-details">
+                        <h4 class="chapter-title">影の軍産複合体 <span class="chapter-status status-planning">(構想中)</span></h4>
+                        <p class="chapter-summary">
+                            頻発するAギア犯罪の裏に、巨大企業「ベータ・インダストリーズ」の影が見え隠れする。
+                            アルファ部隊は、敵対組織ガンマとベータ社の繋がりを突き止めるべく、危険な潜入調査を開始する。
+                        </p>
+                    </div>
+                    <figure class="chapter-image">
+                        <img src="images/placeholder_story_thumb.png" alt="第三章のサムネイルイメージ (プレースホルダー)">
+                    </figure>
+                </article>
+
+                <!-- 他の章をここに追加 -->
+
+            </div> <!-- .chapter-list -->
+        </div> <!-- .story-chapters -->
+
+        <div class="story-timeline">
+            <h3>物語の時系列 (主要イベント)</h3>
+            <ul>
+                <li><strong>2038年:</strong> 新エネルギー「クオリア・エネルギー」発見。Aギア開発競争が激化。</li>
+                <li><strong>2040年:</strong> 初の戦闘用Aギアが軍事パレードで公開される。</li>
+                <li><strong>2042年 春:</strong> 主人公、山田太郎がライトブレイバーと出会う。(第一章)</li>
+                <li><strong>2042年 夏:</strong> 東京湾岸エリアで大規模Aギアテロ発生。アルファ部隊結成。(物語中盤の山場)</li>
+                <li><strong>2042年 冬:</strong> 謎の組織「ガンマ」の首領との最終決戦。(クライマックス)</li>
+            </ul>
+        </div>
+
+    </div> <!-- .container -->
+</section> <!-- #story-page -->
+{{end}}

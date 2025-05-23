@@ -1,8 +1,9 @@
 ---
 date: "2025-01-30T03:36:57-08:00"
 draft: false
+title: Characters
 params:
-  subtitle1: 登場キャラクター
+  subtitle1: メインキャラクター
   characters:
     - name: "山田 太郎"
       link: "characters/character_taro"
@@ -19,7 +20,4 @@ params:
       image: "images/placeholder_chara.png"
       alt: "キャラクター名２"
       description: "ライバル、エースパイロット"
-  sutitle2: "キャラクター相関図"
-
-title: Characters
 ---

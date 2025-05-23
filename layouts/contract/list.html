@@ -1,0 +1,344 @@
+{{define "main"}}
+<style>
+
+/* === お問い合わせページ (Contact Page) スタイル === */
+
+#contact-page h2 { /* お問い合わせページのメインタイトル */
+    text-align: center;
+    margin-bottom: 1em;
+    padding-bottom: 0.5em;
+    border-bottom: 3px solid var(--color-accent); /* 他ページと色を変えてみる */
+}
+#contact-page h2 .section-subtitle {
+    display: block;
+    font-size: 0.6em;
+    color: var(--color-text-muted);
+    font-family: var(--font-family-base);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.3em;
+}
+
+.contact-intro {
+    margin: 30px auto;
+    padding: 20px;
+    max-width: 800px; /* 導入文の幅を制限 */
+    text-align: center;
+    background-color: rgba(var(--color-surface-rgb), 0.5);
+    border-radius: var(--border-radius);
+}
+.contact-intro .lead-paragraph {
+    font-size: 1.1rem;
+    color: var(--color-text);
+    margin-bottom: 1em;
+}
+.contact-intro p {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+}
+.contact-intro a { /* プライバシーポリシーへのリンク */
+    color: var(--color-secondary);
+    text-decoration: underline;
+}
+.contact-intro a:hover {
+    color: var(--color-primary);
+}
+
+
+.contact-form-container {
+    max-width: 700px; /* フォーム全体の最大幅 */
+    margin: 40px auto;
+    padding: 30px 35px;
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius);
+    box-shadow: var(--hard-shadow), 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-family: var(--font-family-heading);
+    font-size: 1rem;
+    color: var(--color-heading);
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+.form-group label .required-mark {
+    color: var(--color-primary);
+    font-size: 0.9em;
+    margin-left: 5px;
+    font-weight: normal; /* アスタリスクは太字にしなくても良いかも */
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--color-bg-secondary);
+    border-radius: var(--border-radius);
+    background-color: var(--color-bg); /* 入力欄の背景を少し暗めに */
+    color: var(--color-text);
+    font-family: var(--font-family-base);
+    font-size: 1rem;
+    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+    box-sizing: border-box; /* paddingを含めた幅計算 */
+}
+.form-group input[type="text"]::placeholder,
+.form-group input[type="email"]::placeholder,
+.form-group textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.7;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(var(--color-secondary-rgb, 27, 154, 170), 0.3); /* フォーカスリング */
+}
+/* :root に --color-secondary-rgb: 27, 154, 170; のような変数を追加 */
+:root {
+    /* ...既存の変数... */
+    --color-secondary-rgb: 27, 154, 170; /* フォーカスリング用 */
+}
+
+
+.form-group select {
+    appearance: none; /* デフォルトの矢印を消す */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a0a0a0'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E"); /* カスタム矢印 (SVG) */
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 20px;
+    padding-right: 40px; /* 矢印のスペース */
+}
+.form-group select option {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+}
+
+.form-group textarea {
+    min-height: 150px; /* テキストエリアの最小高さ */
+    resize: vertical; /* 縦方向のみリサイズ可 */
+}
+
+.form-group.privacy-consent {
+    display: flex;
+    align-items: center;
+    margin-top: 30px; /* 少し間隔をあける */
+}
+.form-group.privacy-consent input[type="checkbox"] {
+    width: auto; /* チェックボックスの幅は自動 */
+    margin-right: 10px;
+    accent-color: var(--color-primary); /* チェックボックスの色 */
+    transform: scale(1.2); /* 少し大きく */
+}
+.form-group.privacy-consent label {
+    font-family: var(--font-family-base);
+    font-size: 0.9rem;
+    font-weight: normal;
+    color: var(--color-text-muted);
+    margin-bottom: 0; /* flexなので不要 */
+}
+.form-group.privacy-consent label a {
+    color: var(--color-secondary);
+    text-decoration: underline;
+}
+.form-group.privacy-consent label a:hover {
+    color: var(--color-primary);
+}
+
+.submit-button-container {
+    text-align: center; /* ボタンを中央揃え */
+    margin-top: 30px;
+}
+.btn-submit {
+    padding: 0.8em 2.5em;
+    background: linear-gradient(45deg, var(--color-primary), var(--color-accent));
+    color: var(--color-bg);
+    font-family: var(--font-family-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--hard-shadow);
+    cursor: pointer;
+    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease, filter var(--transition-speed) ease;
+}
+.btn-submit:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 6px 6px 0px #00000060;
+    filter: brightness(1.1);
+}
+.btn-submit:active {
+    transform: translateY(0px) scale(1);
+    box-shadow: var(--hard-shadow);
+}
+
+/* フォーム送信結果メッセージ */
+.form-feedback {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    font-size: 0.95rem;
+    text-align: center;
+}
+.form-feedback.success {
+    background-color: rgba(var(--color-secondary-rgb), 0.15);
+    color: var(--color-secondary);
+    border: 1px solid var(--color-secondary);
+}
+.form-feedback.error {
+    background-color: rgba(var(--color-primary-rgb, 228, 63, 90), 0.15); /* var(--color-primary-rgb) も定義推奨 */
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+:root {
+    /* ...既存の変数... */
+    --color-primary-rgb: 228, 63, 90; /* フィードバック用 */
+}
+
+
+.contact-alternatives {
+    margin-top: 50px;
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(var(--color-bg-secondary-rgb, 22, 36, 71), 0.7); /* var(--color-bg-secondary-rgb) も定義推奨 */
+    border-radius: var(--border-radius);
+}
+:root {
+    /* ...既存の変数... */
+    --color-bg-secondary-rgb: 22, 36, 71; /* .contact-alternatives などで使用 */
+}
+.contact-alternatives h3 {
+    font-size: 1.3rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1em;
+}
+.contact-alternatives p {
+    font-size: 0.95rem;
+    color: var(--color-text);
+    line-height: 1.6;
+    margin-bottom: 0.8em;
+}
+.contact-alternatives a {
+    color: var(--color-accent);
+    font-weight: bold;
+}
+.contact-alternatives a:hover {
+    text-decoration: underline;
+}
+
+
+/* レスポンシブ調整 (Contact Page) */
+@media (max-width: 768px) {
+    .contact-form-container {
+        padding: 25px 20px;
+    }
+    .form-group label {
+        font-size: 0.95rem;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group select,
+    .form-group textarea {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+    }
+    .form-group select {
+        background-position: right 10px center;
+        padding-right: 35px;
+    }
+    .btn-submit {
+        font-size: 1rem;
+        padding: 0.7em 2em;
+    }
+}
+</style>
+<section id="contact-page">
+    <div class="container">
+        <h2>お問い合わせ <span class="section-subtitle">Contact Us</span></h2>
+
+        <div class="contact-intro">
+            <p class="lead-paragraph">
+                「物語タイトル」に関するご意見、ご感想、取材のお申し込み、その他お問い合わせは、以下のフォームよりお気軽にご連絡ください。
+                内容を確認後、担当者より折り返しご連絡させていただきます。
+            </p>
+            <p>
+                ※ お問い合わせの内容によっては、返信にお時間をいただく場合や、返信いたしかねる場合がございます。あらかじめご了承ください。<br>
+                ※ 個人情報の取り扱いについては、<a href="privacy.html">プライバシーポリシー</a>をご確認ください。 (プライバシーポリシーページも別途作成推奨)
+            </p>
+        </div>
+
+        <div class="contact-form-container">
+            <form id="contact-form" action="submit_form.php" method="POST"> <!-- action属性は実際の送信先処理プログラムを指定 -->
+                <div class="form-group">
+                    <label for="name">お名前 <span class="required-mark">*</span></label>
+                    <input type="text" id="name" name="name" required placeholder="例：山田 太郎">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">メールアドレス <span class="required-mark">*</span></label>
+                    <input type="email" id="email" name="email" required placeholder="例：your_email@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">件名 <span class="required-mark">*</span></label>
+                    <input type="text" id="subject" name="subject" required placeholder="例：作品の感想について">
+                </div>
+
+                <div class="form-group">
+                    <label for="inquiry_type">お問い合わせ種別</label>
+                    <select id="inquiry_type" name="inquiry_type">
+                        <option value="">選択してください</option>
+                        <option value="感想・意見">作品への感想・ご意見</option>
+                        <option value="質問">作品内容に関するご質問</option>
+                        <option value="取材・メディア関連">取材・メディア関連</option>
+                        <option value="コラボレーション">コラボレーションのご提案</option>
+                        <option value="その他">その他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">お問い合わせ内容 <span class="required-mark">*</span></label>
+                    <textarea id="message" name="message" rows="8" required placeholder="お問い合わせの詳細をご記入ください。"></textarea>
+                </div>
+
+                <div class="form-group privacy-consent">
+                    <input type="checkbox" id="privacy_agree" name="privacy_agree" value="agreed" required>
+                    <label for="privacy_agree"><a href="privacy.html" target="_blank" rel="noopener noreferrer">プライバシーポリシー</a>に同意します。<span class="required-mark">*</span></label>
+                </div>
+
+                <div class="form-group submit-button-container">
+                    <button type="submit" class="btn-submit">送信する</button>
+                </div>
+
+                <div id="form-messages" class="form-feedback" aria-live="polite"></div> <!-- 送信結果表示用 -->
+            </form>
+        </div> <!-- .contact-form-container -->
+
+        <div class="contact-alternatives">
+            <h3>その他連絡先</h3>
+            <p>
+                お急ぎの場合や、フォームがご利用になれない場合は、以下のメールアドレスまで直接ご連絡ください。<br>
+                Email: <a href="mailto:info@example.com">info@example.com</a> (このメールアドレスはダミーです)
+            </p>
+            <p>
+                公式X(旧Twitter)アカウントへのDMでも、一部お問い合わせを受け付けております。<br>
+                X (旧Twitter): <a href="https://twitter.com/YourStoryAccount" target="_blank" rel="noopener noreferrer">@YourStoryAccount</a>
+            </p>
+        </div>
+
+    </div> <!-- .container -->
+</section> <!-- #contact-page -->
+{{end}}

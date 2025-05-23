@@ -1,7 +1,8 @@
 {{ define "main" }}
 <section id="character-list">
     <div class="container">
-        <h2>{{.Params.subtitle1}}</h2>
+        <h2>{{.Title}}</h2>
+        <h3>{{.Params.subtitle1}}</h3>
         <div class="character-grid">
             {{ with .Params.characters }}
             {{ range . }}
