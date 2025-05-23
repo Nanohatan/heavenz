@@ -1,8 +1,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-{{ $styles := resources.Get "css/tailwind.css" | postCSS (dict "config" "./postcss.config.js") | minify | fingerprint }}
-<link rel="stylesheet" href="{{ $styles.RelPermalink }}" integrity="{{ $styles.Data.Integrity }}">
-
+<!-- layouts/partials/head.html (for example) -->
+<link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
 
 <title>
   {{ block "title" . }}

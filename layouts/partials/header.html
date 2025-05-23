@@ -1,11 +1,13 @@
 <header class="bg-white shadow">
 <div class="container mx-auto px-4 py-6 flex justify-between items-center">
-    <h1 class="text-4xl text-indigo-700 font-emblema underline decoration-pink-500" stype="text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);">{{ .Site.Title }}</h1>
+    <h1 class="text-4xl text-indigo-700 font-emblema underline decoration-pink-500" stype="text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);">
+        <a href="{{ "/characters/" | relURL }}">{{ .Site.Title }}</a>
+    </h1>
     <nav>
     <ul class="flex space-x-4">
-        <li><a href="#" class="text-lg text-indigo-500 font-kaisei  hover:underline decoration-pink-500">Story</a></li>
-        <li><a href="#"  class="text-lg text-indigo-500 font-kaisei  hover:underline decoration-pink-500">Characters</a></li>
-        <li><a href="#"  class="text-lg text-indigo-500 font-kaisei  hover:underline decoration-pink-500">Worldbuilding & Glossary</a></li>
+        <li><a href="#" class="text-lg text-indigo-500 font-kaisei  hover:underline decoration-pink-500">World</a></li>
+        <li><a href="{{ "/characters/" | relURL }}" class="text-lg text-indigo-500 font-kaisei  hover:underline decoration-pink-500">Characters</a></li>
+        <li><a href="{{ "/world/" | relURL }}"  class="text-lg text-indigo-500 font-kaisei  hover:underline decoration-pink-500">Worldbuilding & Glossary</a></li>
         <li><a href="#" class="text-lg text-indigo-500 font-kaisei  hover:underline decoration-pink-500">News</a></li>
         <li><a href="#" class="text-lg text-indigo-500 font-kaisei hover:underline decoration-pink-500">Contract</a></li>
     </ul>

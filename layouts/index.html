@@ -1,13 +1,27 @@
 {{ define "main" }}
+<main>
+  <section id="hero">
+      <div class="container">
+          <!-- images/key_visual.jpg などを背景画像としてCSSで指定することも可能 -->
+          {{/*  <img src="{{ "img/key_visual.jpg" | relURL }}" alt="キービジュアル" style="width:100%; max-height: 400px; object-fit: cover; display: block; margin-bottom: 20px;">  */}}
+          <h2>鋼鉄の魂が、現代を駆ける！</h2>
+          <p class="intro">
+              20XX年、東京。人型汎用機械、通称「アーティファクト・ギア」が日常に溶け込み始めた時代。
+              主人公たちは、それぞれの想いを胸に、巨大な陰謀と戦うことになる――。
+          </p>
+      </div>
+  </section>
 
-<section class="hero bg-cover bg-center" style="background-image: url('/img/hero.jpg');">
-  <div class="container mx-auto px-4 py-32 text-center">
-    <h2 class="text-4xl font-bold text-white">あなたのビジネスを次のレベルへ</h2>
-    <p class="mt-4 text-lg text-white">最高のサービスを提供します。今すぐご相談ください！</p>
-    <a href="#" class="mt-8 inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg">お問い合わせ</a>
-  </div>
-</section>
-  {{ .Content }}
+  <section id="latest-news">
+      <div class="container">
+          <h3>最新情報</h3>
+          <ul>
+              <li>2024/XX/XX - ホームページを公開しました！</li>
+              <li>2024/XX/XX - キャラクター「〇〇」の情報を追加しました。</li>
+          </ul>
+      </div>
+  </section>
+</main>
 
 
 
